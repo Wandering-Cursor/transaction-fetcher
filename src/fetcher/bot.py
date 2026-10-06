@@ -336,15 +336,21 @@ def edit_account(call: telebot.types.CallbackQuery) -> None:
         indent=4,
     )
 
-    bot_message = bot.send_message(
-        chat_id=message.chat.id,
-        text=(
-            "Provide the JSON account configuration.\n\n"
-            f'<pre><code class="language-json">{schema}</code></pre>\n\nCurrent value:\n\n'
-            f'<pre><code class="language-json">{account_dto.model_dump_json(indent=4)}</code></pre>'
-        ),
-        parse_mode="HTML",
-    )
+    bot_message = None
+    for text in telebot.util.smart_split(
+        "Provide the JSON account configuration.\n\n"
+        f'<pre><code class="language-json">{schema}</code></pre>\n\nCurrent value:\n\n'
+        f'<pre><code class="language-json">{account_dto.model_dump_json(indent=4)}</code></pre>'
+    ):
+        bot_message = bot.send_message(
+            chat_id=message.chat.id,
+            text=text,
+            parse_mode="HTML",
+        )
+
+    if bot_message is None:
+        raise RuntimeError("Failed to send bot message.")
+
     bot.register_for_reply(
         message=bot_message,
         callback=handle_account_editing,
