@@ -172,7 +172,7 @@ class ABankProvider(BaseAccountProvider):
 
         try:
             response.raise_for_status()
-        except httpx.HTTPStatusError as e:
+        except httpx.HTTPStatusError:
             main_logger.error(
                 {
                     "msg": "Failed to get transactions",
@@ -180,7 +180,7 @@ class ABankProvider(BaseAccountProvider):
                     "response": response.content,
                 }
             )
-            raise e
+            raise
 
         response_data = ABankTransactionsResponseSchema.model_validate(response.json())
 

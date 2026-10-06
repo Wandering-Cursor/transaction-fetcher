@@ -11,7 +11,8 @@
 				"ms-python.python",
 				"charliermarsh.ruff",
 				"streetsidesoftware.code-spell-checker",
-				"qwtel.sqlite-viewer"
+				"qwtel.sqlite-viewer",
+				"github.vscode-github-actions"
 			]
 		}
 	}

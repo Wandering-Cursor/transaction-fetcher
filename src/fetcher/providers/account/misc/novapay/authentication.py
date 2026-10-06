@@ -1,3 +1,4 @@
+# ruff: noqa: T201
 from uuid import uuid4
 
 from zeep import Client
