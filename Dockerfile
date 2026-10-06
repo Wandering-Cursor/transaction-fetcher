@@ -49,4 +49,4 @@ COPY --from=builder --chown=appuser:appuser /app/alembic.ini /app/alembic.ini
 
 USER appuser
 
-CMD ["python", "-m", "src.main", "bot"]
+CMD ["/app/.venv/bin/python", "-m", "src.main", "bot"]
