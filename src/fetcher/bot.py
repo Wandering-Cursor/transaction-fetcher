@@ -336,15 +336,36 @@ def edit_account(call: telebot.types.CallbackQuery) -> None:
         indent=4,
     )
 
-    bot_message = None
-    for text in telebot.util.smart_split(
-        "Provide the JSON account configuration.\n\n"
-        f'<pre><code class="language-json">{schema}</code></pre>\n\nCurrent value:\n\n'
-        f'<pre><code class="language-json">{account_dto.model_dump_json(indent=4)}</code></pre>'
+    bot_message = bot.send_message(
+        chat_id=message.chat.id,
+        text="Provide the JSON account configuration.",
+        parse_mode="HTML",
+    )
+
+    bot.send_message(
+        chat_id=message.chat.id,
+        text="Schema:",
+        parse_mode="HTML",
+    )
+    for chunk in telebot.util.smart_split(schema, chars_per_string=3800):
+        bot.send_message(
+            chat_id=message.chat.id,
+            text=f'<pre><code class="language-json">{chunk}</code></pre>',
+            parse_mode="HTML",
+        )
+
+    bot.send_message(
+        chat_id=message.chat.id,
+        text="Current value:",
+        parse_mode="HTML",
+    )
+    for chunk in telebot.util.smart_split(
+        account_dto.model_dump_json(indent=4),
+        chars_per_string=3800,
     ):
         bot_message = bot.send_message(
             chat_id=message.chat.id,
-            text=text,
+            text=f'<pre><code class="language-json">{chunk}</code></pre>',
             parse_mode="HTML",
         )
 
