@@ -8,7 +8,7 @@
             "name": "Start Bot",
             "type": "debugpy",
             "request": "launch",
-            "program": "main.py",
+            "program": "src/fetcher/main.py",
             "console": "integratedTerminal",
             "args": [
                 "bot"
