@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from fetcher import db
 from fetcher.enums.chat import ChatProvider
+from fetcher.logger import main_logger
 from fetcher.models.chat import ChatModel
 from fetcher.providers.notification.get import get_chat_provider_class
 from fetcher.repository import settings
@@ -147,3 +148,16 @@ def get_chat_service() -> ChatService:
     database = db.get_engine(settings.settings.DB_URL)
     chat_repository = ChatRepository(database)
     return ChatService(chat_repository=chat_repository)
+
+
+def send_error_to_management(error_message: str, exception: Exception | None = None) -> None:
+    try:
+        chat_service = get_chat_service()
+        chat_service.notify_management(text=error_message, exception=exception)
+    except Exception as e:  # noqa: BLE001
+        main_logger.error(
+            {
+                "msg": "Failed to send error to management chat",
+                "error": str(e),
+            }
+        )

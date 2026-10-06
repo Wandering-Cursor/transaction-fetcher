@@ -10,6 +10,7 @@ import pytz
 from zeep import Client
 
 from fetcher.enums.transaction import TransactionType
+from fetcher.logger import main_logger
 from fetcher.providers.account.base import BaseAccountProvider
 from fetcher.schemas.account import BalanceSchema
 from fetcher.schemas.base import BaseSchema
@@ -33,6 +34,9 @@ class ResponseError(Exception):
         self.message = message
 
         super().__init__(message)
+
+    def __str__(self) -> str:
+        return f"ResponseError({self.message=}, {self.response=})"
 
 
 class NovaPayProviderConfiguration(BaseSchema):
@@ -125,6 +129,14 @@ class NovaPayProvider(BaseAccountProvider):
         )
 
         transactions_data = response["payments"]
+
+        if transactions_data is None:
+            main_logger.warning(
+                f"No transactions data received from NovaPay\n"
+                f"Keys: {response.keys()}\n"
+                f"Response: {str(response)[:256]}"
+            )
+            return []
 
         transactions = ET.fromstring(transactions_data)
 

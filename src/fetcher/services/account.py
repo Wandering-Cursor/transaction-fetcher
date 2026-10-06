@@ -8,6 +8,7 @@ from fetcher.providers.account.get import get_provider_class
 from fetcher.repository import settings
 from fetcher.repository.account import AccountRepository
 from fetcher.schemas.account import CreateAccountSchema
+from fetcher.services.chat import send_error_to_management
 from fetcher.utils import handle_service_exception
 
 
@@ -37,7 +38,19 @@ class AccountService:
         )
         accounts = self.get_accounts(fetch_all=True)
         for account in accounts:
-            self.update_account_data(account_id=account.id)
+            try:
+                self.update_account_data(account_id=account.id)
+            except Exception as e:  # noqa: BLE001
+                db_logger.error(
+                    {
+                        "msg": f"Failed to update account data for account {account.id}",
+                        "error": str(e),
+                    }
+                )
+                send_error_to_management(
+                    f"Failed to update account data for account {account.id}",
+                    exception=e,
+                )
         db_logger.info(
             {
                 "msg": "Finished updating account data for all accounts",
