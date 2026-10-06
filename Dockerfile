@@ -16,17 +16,16 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --create-home --uid 10001 appuser
 
-COPY --chown=appuser:appuser pyproject.toml uv.lock ./
+COPY --chown=appuser:appuser README.md pyproject.toml uv.lock ./
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=cache,target=/root/.cache/pip \
-    python -m ensurepip --upgrade \
-    && pip install --no-cache-dir uv \
-    && uv sync --frozen --no-dev --no-install-project
+    uv sync --frozen --no-dev --no-install-project
 
 COPY --chown=appuser:appuser src ./src
 COPY --chown=appuser:appuser alembic.ini ./alembic.ini
-COPY --chown=appuser:appuser alembic ./alembic
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --compile-bytecode
@@ -46,7 +45,6 @@ RUN groupadd --system --gid 10001 appuser \
 
 COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
 COPY --from=builder --chown=appuser:appuser /app/src /app/src
-COPY --from=builder --chown=appuser:appuser /app/alembic /app/alembic
 COPY --from=builder --chown=appuser:appuser /app/alembic.ini /app/alembic.ini
 
 USER appuser
