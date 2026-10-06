@@ -35,7 +35,7 @@ FROM python:3.14-slim-bookworm AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/home/appuser/.local/bin:${PATH}" \
-    PYTHONPATH="/app"
+    PYTHONPATH="/app:/app/src"
 
 WORKDIR /app
 
