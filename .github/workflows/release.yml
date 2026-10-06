@@ -3,7 +3,7 @@ name: Automated build and semantic release
 on:
   push:
     branches:
-      - main
+      - master
       - beta
 
 jobs:
