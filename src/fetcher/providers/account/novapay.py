@@ -41,7 +41,12 @@ class ResponseError(Exception):
 
 class NovaPayProviderConfiguration(BaseSchema):
     account_id: str
-    principal: str
+    login: str
+    refresh_token: str
+    public_certificate: str
+
+    jwt: str | None = None
+    expiration: str | None = None
 
 
 class NovaPayPaymentType(StrEnum):
@@ -77,7 +82,7 @@ class NovaPayTransactionSchema(BaseSchema):
         return TransactionSchema(
             unique_id=self.code,
             amount=self.amount,
-            currency_code=currency.numerical_code,
+            currency=currency,
             type=self.payment_type.as_transaction_type,
             at_time=self.changed,
             description=self.purpose,
@@ -121,7 +126,7 @@ class NovaPayProvider(BaseAccountProvider):
         response = self.client.service.GetPaymentsList(
             {
                 "request_ref": str(uuid4()),
-                "principal": self.configuration.principal,
+                "jwt": self.configuration.jwt,
                 # "account_id": self.configuration.account_id,
                 "date_from": date_from.strftime("%d.%m.%Y"),
                 "date_to": current_time.strftime("%d.%m.%Y"),
@@ -165,10 +170,12 @@ class NovaPayProvider(BaseAccountProvider):
         return [transaction.to_transaction_schema() for transaction in transactions]
 
     def update_account_data(self) -> dict | None:
-        refresh_response = self.client.service.RefreshUserAuthentication(
+        refresh_response = self.client.service.UserAuthenticationJWT(
             {
                 "request_ref": str(uuid4()),
-                "principal": self.configuration.principal,
+                "refresh_token": self.configuration.refresh_token,
+                "login": self.configuration.login,
+                "public_certificate": self.configuration.public_certificate,
             }
         )
 
@@ -178,7 +185,10 @@ class NovaPayProvider(BaseAccountProvider):
                 message="Failed to refresh authentication",
             )
 
-        self.configuration.principal = refresh_response["new_principal"]
+        self.configuration.jwt = refresh_response["jwt"]
+        self.configuration.refresh_token = refresh_response["refresh_token"]
+        self.configuration.public_certificate = refresh_response["public_certificate"]
+        self.configuration.expiration = refresh_response["expiration"]
 
         return self.configuration.model_dump()
 
@@ -189,7 +199,7 @@ class NovaPayProvider(BaseAccountProvider):
         account_extract = self.client.service.GetAccountExtract(
             {
                 "request_ref": str(uuid4()),
-                "principal": self.configuration.principal,
+                "jwt": self.configuration.jwt,
                 "account_id": self.configuration.account_id,
                 "date_to": now.strftime("%d.%m.%Y"),
                 "date_from": one_day_ago.strftime("%d.%m.%Y"),

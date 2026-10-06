@@ -4,24 +4,29 @@ from zeep import Client
 
 client = Client("https://business.novapay.ua/Services/ClientAPIService.svc?wsdl")
 
-response = client.service.PreUserAuthentication(
+
+login = input("Enter login: ")
+refresh_token = input("Enter refresh token: ")
+public_certificate = input(
+    "Enter public certificate (should end with -----END RSA PUBLIC KEY-----): "
+)
+
+while True:
+    if not public_certificate.endswith("-----END RSA PUBLIC KEY-----"):
+        public_certificate += input("next line: ").replace("\n", "")
+    else:
+        break
+
+response = client.service.UserAuthenticationJWT(
     {
         "request_ref": str(uuid4()),
-        "login": input("Enter login: "),
-        "password": input("Enter password: "),
+        "refresh_token": refresh_token,
+        "login": login,
+        "public_certificate": public_certificate,
     }
 )
 
-print(response)  # noqa: T201
-
-
-second_response = client.service.UserAuthentication(
-    {
-        "request_ref": str(uuid4()),
-        "temp_principal": response["temp_principal"],
-        "code_operation_otp": response["code_operation_otp"],
-        "otp_password": input("Enter OTP: "),
-    }
-)
-
-print(second_response)  # noqa: T201
+print("JWT: ", response["jwt"])
+print("Expiration: ", response["expiration"])
+print("New refresh token: ", response["refresh_token"])
+print("New public certificate: ", response["public_certificate"])
