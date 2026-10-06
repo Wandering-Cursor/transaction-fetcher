@@ -150,7 +150,7 @@ class NotificationService:
         notification_setting: "NotificationSettingsSchema",
     ) -> str:
         if notification_setting.notification_type == NotificationType.BALANCE:
-            from fetcher.services.transaction import get_transaction_service
+            from fetcher.services.transaction import get_transaction_service  # noqa: PLC0415
 
             transaction_service = get_transaction_service()
             balance = transaction_service.get_balance(
@@ -168,7 +168,7 @@ class NotificationService:
             return notification_setting.active_message()
 
         if notification_setting.notification_type == NotificationType.UNANSWERED:
-            from fetcher.services.transaction import get_transaction_service
+            from fetcher.services.transaction import get_transaction_service  # noqa: PLC0415
 
             transaction_service = get_transaction_service()
 
