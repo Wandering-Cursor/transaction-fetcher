@@ -132,9 +132,7 @@ class NovaPayProvider(BaseAccountProvider):
 
         if transactions_data is None:
             main_logger.warning(
-                f"No transactions data received from NovaPay\n"
-                f"Keys: {response.keys()}\n"
-                f"Response: {str(response)[:256]}"
+                f"No transactions data received from NovaPay\nResponse: {str(response)[:256]}"
             )
             return []
 
