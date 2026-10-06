@@ -53,13 +53,12 @@ jobs:
         uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90
         with:
           extra_plugins: |
-            @semantic-release/commit-analyzer
-            @semantic-release/release-notes-generator
-            @semantic-release/changelog
-            @semantic-release/git
-            @semantic-release/github
-            conventional-changelog-conventionalcommits
-            conventional-changelog-writer
+            @semantic-release/commit-analyzer@v13
+            @semantic-release/release-notes-generator@v13
+            @semantic-release/changelog@v6
+            @semantic-release/git@v10
+            @semantic-release/github@v11
+            conventional-changelog-conventionalcommits@v8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
