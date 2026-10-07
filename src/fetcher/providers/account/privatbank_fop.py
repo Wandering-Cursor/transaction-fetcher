@@ -92,8 +92,8 @@ class PrivatBankTransaction(BaseSchema):
     )
     @classmethod
     def convert_time(cls, value: str) -> datetime.datetime:
-        return datetime.datetime.strptime(value, "%d.%m.%Y %H:%M:%S").astimezone(
-            tz=privatbank_timezone,
+        return privatbank_timezone.localize(
+            datetime.datetime.strptime(value, "%d.%m.%Y %H:%M:%S")  # noqa: DTZ007
         )
 
     def to_transaction_schema(self) -> TransactionSchema:
