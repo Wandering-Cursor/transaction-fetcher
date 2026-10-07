@@ -94,10 +94,12 @@ class NovaPayTransactionSchema(BaseSchema):
     )
     @classmethod
     def validate_changed(cls, value: str) -> datetime.datetime:
-        return datetime.datetime.strptime(
-            value,
-            "%d.%m.%Y %H:%M:%S",
-        ).astimezone(nova_pay_timezone)
+        return nova_pay_timezone.localize(
+            datetime.datetime.strptime(  # noqa: DTZ007
+                value,
+                "%d.%m.%Y %H:%M:%S",
+            )
+        )
 
 
 class NovaPayProvider(BaseAccountProvider):

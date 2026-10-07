@@ -69,7 +69,7 @@ class ABankTransaction(BaseSchema):
     def to_transaction_schema(self, own_iban: str) -> "TransactionSchema":
         return TransactionSchema(
             unique_id=str(self.payment_id),
-            at_time=self.date_change.astimezone(abank_timezone),
+            at_time=abank_timezone.localize(self.date_change),
             description=self.description,
             amount=self.amount,
             type=(
