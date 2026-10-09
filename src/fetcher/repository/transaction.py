@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Session, joinedload
 
+from fetcher.enums.account import AccountProvider
 from fetcher.exceptions import TransactionFetchError
 from fetcher.logger import main_logger
 from fetcher.models.transaction import TransactionModel
@@ -59,6 +60,18 @@ class TransactionRepository:
             .count()
             > 0
         )
+
+        if not exists and account.provider == AccountProvider.PRIVATBANK_FOP:
+            # Second query to check for deprecated `ID` field
+            exists = (
+                session.query(TransactionModel)
+                .filter(
+                    TransactionModel.account_id == account.id,
+                    TransactionModel.unique_id == getattr(transaction.base, "id_field", ""),
+                )
+                .count()
+                > 0
+            )
 
         if not db_session:
             session.close()
