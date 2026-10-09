@@ -51,7 +51,21 @@ class PrivatBankIsRealStatus(StrEnum):
 
 
 class PrivatBankTransaction(BaseSchema):
-    unique_id: str = pydantic.Field(validation_alias="ID")
+    reference: str = pydantic.Field(validation_alias="REF")
+    reference_number: str = pydantic.Field(validation_alias="REFN")
+
+    @pydantic.computed_field()
+    @property
+    def unique_id(self) -> str:
+        return f"{self.reference}_{self.reference_number}"
+
+    id_field: str = pydantic.Field(
+        validation_alias="ID",
+        description=(
+            "Not a unique identifier, use unique_id instead! Kept for backwards-compatibility."
+        ),
+    )
+
     amount: Decimal = pydantic.Field(validation_alias="SUM")
     currency: str = pydantic.Field(validation_alias="CCY")
     description: str = pydantic.Field(validation_alias="OSND")
