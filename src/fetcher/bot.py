@@ -6,6 +6,7 @@ import telebot.util
 from telebot.storage import StateMemoryStorage
 
 from fetcher.exceptions import NotAdminError
+from fetcher.logger import main_logger
 from fetcher.models.notification_setting import NotificationSettingsModel
 from fetcher.repository import settings
 from fetcher.schemas.account import AccountSchema, CreateAccountSchema
@@ -20,6 +21,12 @@ from fetcher.services.transaction import get_transaction_service
 class CustomExceptionHandler(telebot.ExceptionHandler):
     def handle(self, exception: Exception) -> bool:  # pyright: ignore[reportIncompatibleMethodOverride]
         handled = super().handle(exception)
+
+        main_logger.error(
+            f"Exception in bot: {exception}",
+            exc_info=exception,
+            stack_info=True,
+        )
 
         if handled:
             return handled
@@ -1082,12 +1089,20 @@ def balances(message: telebot.types.Message) -> None:
         chat_id=chat.id,
     )
 
-    balances = [
-        transaction_service.get_balance(
-            account_id=account.id,
-        )
-        for account in accounts
-    ]
+    balances = []
+    for account in accounts:
+        try:
+            balances.append(
+                transaction_service.get_balance(
+                    account_id=account.id,
+                )
+            )
+        except Exception as e:  # noqa: BLE001
+            main_logger.error(
+                f"Failed to get balance for account {account.id}: {e}",
+                exc_info=e,
+            )
+            balances.append(None)
 
     balances_text = "Балансы:\n\n"
 

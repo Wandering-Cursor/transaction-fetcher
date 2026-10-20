@@ -1,6 +1,6 @@
 [project]
 name = "transaction-fetcher"
-version = "3.0.11"
+version = "3.0.12"
 description = "A rewrite of cardInfo2 bot"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -72,6 +72,7 @@ ignore = [
   "RUF012",
   "FBT001",
   "FBT002",
+  "ICN001",
 ]
 
 [tool.ruff.format]

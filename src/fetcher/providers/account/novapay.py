@@ -208,7 +208,13 @@ class NovaPayProvider(BaseAccountProvider):
             }
         )
 
+        if not account_extract:
+            return None
+
         extract_data = account_extract["extract"]
+
+        if not extract_data:
+            return None
 
         extract = ET.fromstring(extract_data)
         data = extract.find("ExtractHead/GetExtractForXML")
