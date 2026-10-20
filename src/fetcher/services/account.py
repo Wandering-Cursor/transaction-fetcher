@@ -26,7 +26,7 @@ class AccountService:
         db_logger.info("Starting account service")
         while True:
             self._run_iteration()
-            time.sleep(60 * 60)  # 1 hour
+            time.sleep(10 * 60)  # 10 minutes
 
     @handle_service_exception("account service", db_logger)
     def _run_iteration(self) -> None:
